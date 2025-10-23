@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
 from .terrain import generate_reference_and_limits
+import pandas as pd
 
 class Submarine:
     def __init__(self):
@@ -75,8 +76,14 @@ class Mission:
 
     @classmethod
     def from_csv(cls, file_name: str):
-        # You are required to implement this method
-        pass
+        # Read the CSV file
+        df = pd.read_csv(file_name)
+        reference = df['reference'].to_numpy(dtype=float)
+        cave_height = df['cave_height'].to_numpy(dtype=float)
+        cave_depth = df['cave_depth'].to_numpy(dtype=float)
+        if not (len(reference) == len(cave_height) == len(cave_depth)):
+            raise ValueError("CSV columns must have the same length")
+        return cls(reference, cave_height, cave_depth)
 
 
 class ClosedLoop:
