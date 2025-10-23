@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 from .terrain import generate_reference_and_limits
 import pandas as pd
 
@@ -121,7 +122,9 @@ class ClosedLoop:
             positions[t] = self.plant.get_position()
             observation_t = self.plant.get_depth()
             # Call your controller here
-            self.plant.transition(actions[t], disturbances[t])
+            u_t = self.controller.compute(observation_t, mission.reference[t])
+            actions[t]=u_t
+            self.plant.transition(u_t, disturbances[t])
 
         return Trajectory(positions)
         
