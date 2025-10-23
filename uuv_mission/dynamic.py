@@ -76,14 +76,30 @@ class Mission:
         return cls(reference, cave_height, cave_depth)
 
     @classmethod
-    def from_csv(cls, file_name: str):
-        # Read the CSV file
-        df = pd.read_csv(file_name)
-        reference = df['reference'].to_numpy(dtype=float)
-        cave_height = df['cave_height'].to_numpy(dtype=float)
-        cave_depth = df['cave_depth'].to_numpy(dtype=float)
+    def from_csv(cls, file_path: str = "../data/mission.csv"):
+        """Load a Mission from a CSV file.
+
+        file_path may be absolute or relative. Relative paths are resolved
+        relative to this module's directory.
+        The CSV must contain columns: 'reference', 'cave_height', 'cave_depth'.
+        """
+        # Resolve relative path relative to this file
+        if not os.path.isabs(file_path):
+            base_dir = os.path.dirname(__file__)
+            file_path = os.path.normpath(os.path.join(base_dir, file_path))
+
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Mission CSV not found: {file_path}")
+
+        df = pd.read_csv(file_path)
+        # Convert to 1-D float numpy arrays
+        reference = np.asarray(df['reference'], dtype=float).ravel()
+        cave_height = np.asarray(df['cave_height'], dtype=float).ravel()
+        cave_depth = np.asarray(df['cave_depth'], dtype=float).ravel()
+
         if not (len(reference) == len(cave_height) == len(cave_depth)):
             raise ValueError("CSV columns must have the same length")
+
         return cls(reference, cave_height, cave_depth)
 
 
